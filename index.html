@@ -622,6 +622,9 @@ function filterByYears(val, btn) {
     document.getElementById('storeCard').classList.remove('visible');
   }
   renderDots();
+
+  if(val === 'all') showGeneralDashboard();
+  else hideGeneralDashboard();
 }
 
 // ─── STATS ──────────────────────────────────────────────────────────────────
@@ -657,7 +660,127 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   renderDots();
   updateStats();
+  showGeneralDashboard();
 });
+
+function hideGeneralDashboard() {
+  const el = document.getElementById('generalDash');
+  if(el) el.remove();
+}
+
+function showGeneralDashboard() {
+  hideGeneralDashboard();
+
+  const conocen = stores.filter(s => s.conoce_morena.includes('conozco bien')).length;
+  const dispuestas = stores.filter(s => s.dispuesto.includes('de acuerdo')).length;
+  const conDist = stores.filter(s => s.abasto.includes('Distribuidor')).length;
+  const conMay  = stores.filter(s => s.abasto.includes('Mayorista')).length;
+  const conAmb  = stores.filter(s => s.abasto.includes('Ambos')).length;
+
+  const años1 = stores.filter(s => s.años === '1 a 3 años').length;
+  const años2 = stores.filter(s => s.años === '4 a 7 años').length;
+  const años3 = stores.filter(s => s.años === '8 a 15 años').length;
+  const años4 = stores.filter(s => s.años === 'Más de 15 años').length;
+
+  const sinAderezos = stores.filter(s => s.aderezos.includes('No maneja') || s.aderezos.includes('Sin aderezo')).length;
+  const conEsp = stores.filter(s => s.aderezos.includes('especiales')).length;
+
+  const pct = n => Math.round(n/16*100);
+
+  const dash = document.createElement('div');
+  dash.id = 'generalDash';
+  dash.style.cssText = `
+    background:white;border-top:3px solid var(--orange);
+    padding:16px 20px 20px;
+    animation: slideDown .35s ease;
+  `;
+  dash.innerHTML = `
+    <style>
+      @keyframes slideDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+      .gd-title { font-family:'Bebas Neue',cursive; font-size:18px; color:var(--orange-dark); letter-spacing:1px; margin-bottom:12px; }
+      .gd-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+      .gd-box { background:var(--orange-pale); border-radius:10px; padding:12px; border:1.5px solid #FFD9BF; }
+      .gd-box h4 { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; color:var(--orange-dark); margin-bottom:8px; }
+      .gd-bar-row { display:flex; align-items:center; gap:6px; margin-bottom:5px; font-size:11px; font-weight:700; color:var(--text); }
+      .gd-bar-bg { flex:1; height:8px; background:#FFE4CC; border-radius:4px; overflow:hidden; }
+      .gd-bar-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--orange),var(--orange-light)); }
+      .gd-bar-fill.purple { background:linear-gradient(90deg,#8B5CF6,#A78BFA); }
+      .gd-bar-fill.blue   { background:linear-gradient(90deg,#3B82F6,#60A5FA); }
+      .gd-bar-fill.green  { background:linear-gradient(90deg,#059669,#34D399); }
+      .gd-pct { min-width:28px; text-align:right; font-size:10px; color:var(--muted); }
+    </style>
+
+    <div class="gd-title">📊 Resumen General — 16 Tiendas</div>
+    <div class="gd-grid">
+
+      <div class="gd-box">
+        <h4>⏱ Antigüedad</h4>
+        <div class="gd-bar-row">1–3 años
+          <div class="gd-bar-bg"><div class="gd-bar-fill blue" style="width:${pct(años1)}%"></div></div>
+          <span class="gd-pct">${años1}</span>
+        </div>
+        <div class="gd-bar-row">4–7 años
+          <div class="gd-bar-bg"><div class="gd-bar-fill" style="width:${pct(años2)}%"></div></div>
+          <span class="gd-pct">${años2}</span>
+        </div>
+        <div class="gd-bar-row">8–15 años
+          <div class="gd-bar-bg"><div class="gd-bar-fill purple" style="width:${pct(años3)}%"></div></div>
+          <span class="gd-pct">${años3}</span>
+        </div>
+        <div class="gd-bar-row">+15 años
+          <div class="gd-bar-bg"><div class="gd-bar-fill green" style="width:${pct(años4)}%"></div></div>
+          <span class="gd-pct">${años4}</span>
+        </div>
+      </div>
+
+      <div class="gd-box">
+        <h4>🚚 Abastecimiento</h4>
+        <div class="gd-bar-row">Distribuidores
+          <div class="gd-bar-bg"><div class="gd-bar-fill" style="width:${pct(conDist)}%"></div></div>
+          <span class="gd-pct">${conDist}</span>
+        </div>
+        <div class="gd-bar-row">Mayoristas
+          <div class="gd-bar-bg"><div class="gd-bar-fill blue" style="width:${pct(conMay)}%"></div></div>
+          <span class="gd-pct">${conMay}</span>
+        </div>
+        <div class="gd-bar-row">Ambos
+          <div class="gd-bar-bg"><div class="gd-bar-fill green" style="width:${pct(conAmb)}%"></div></div>
+          <span class="gd-pct">${conAmb}</span>
+        </div>
+      </div>
+
+      <div class="gd-box">
+        <h4>🌶️ La Morena</h4>
+        <div class="gd-bar-row">La conocen bien
+          <div class="gd-bar-bg"><div class="gd-bar-fill green" style="width:${pct(conocen)}%"></div></div>
+          <span class="gd-pct">${conocen}</span>
+        </div>
+        <div class="gd-bar-row">Dispuestas a probar
+          <div class="gd-bar-bg"><div class="gd-bar-fill" style="width:${pct(dispuestas)}%"></div></div>
+          <span class="gd-pct">${dispuestas}</span>
+        </div>
+      </div>
+
+      <div class="gd-box">
+        <h4>🥫 Aderezos</h4>
+        <div class="gd-bar-row">Con aderezos esp.
+          <div class="gd-bar-bg"><div class="gd-bar-fill purple" style="width:${pct(conEsp)}%"></div></div>
+          <span class="gd-pct">${conEsp}</span>
+        </div>
+        <div class="gd-bar-row">Sin aderezos
+          <div class="gd-bar-bg"><div class="gd-bar-fill blue" style="width:${pct(sinAderezos)}%"></div></div>
+          <span class="gd-pct">${sinAderezos}</span>
+        </div>
+      </div>
+
+    </div>
+  `;
+
+  // Insertar DEBAJO del stats-strip
+  const strip = document.getElementById('statsStrip');
+  strip.parentNode.insertBefore(dash, strip.nextSibling);
+}
+  
 </script>
 
 <!-- embed the map image inline using data URI trick -->
